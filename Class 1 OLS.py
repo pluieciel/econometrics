@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import matplotlib.pyplot as plt
-import numpy as np
+#import numpy as np
 import statsmodels.api as sm
 import csv
 with open(r'D:\france life\2017 T2\metric\costsalary.csv','r') as csvf:
