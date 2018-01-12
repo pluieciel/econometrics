@@ -2,7 +2,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import statsmodels.api as sm
-import csv
 
 my = np.loadtxt(open(r'D:\france life\2017 T2\metric\costsalary.csv',"rb"),delimiter=";",skiprows=1)
 x, y = zip(*my)
