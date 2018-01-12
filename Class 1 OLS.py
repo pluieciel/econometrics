@@ -17,15 +17,13 @@ plt.plot(x,y,'bo',x,results.fittedvalues,'r')
 
 '''
 R:
+a = read.csv("D:/france life/2017 T2/metric/costsalary.csv", header = TRUE, sep=";")
 
-a = read.csv(costsalary, header = TRUE, sep=";")
-aa=unlist(strsplit(x,split=";"))
-aa=unlist(lapply(xx,as.numeric))
-aaa=matrix(c(xx),nrow=2)
-
-x=aaa[1,]
-y=aaa[2,]
+x=a$Costs
+y=a$Salary
 
 r=lm(y~x)
 summary(r)
+plot(x,y,'o')
+
 '''
