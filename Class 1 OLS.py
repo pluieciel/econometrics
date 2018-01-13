@@ -19,5 +19,6 @@ y=a$Salary
 
 r=lm(y~x)
 summary(r)
-plot(x,y,'o')
+plot(x,y)
+abline(r)
 '''
