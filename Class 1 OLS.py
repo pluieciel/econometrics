@@ -15,5 +15,5 @@ print(results.summary())
 #with plt.xkcd():    #XKCD-style sketch plots ;-)
 plt.plot(x,y,'bo',x,results.fittedvalues,'r')
 
-A=(np.mat(X).T*np.mat(X)).I*np.mat(X).T*np.mat(y).T   #do it manually for alpha and beta
+A=(np.mat(X).T*np.mat(X)).I*np.mat(X).T*np.mat(y).T   #do it manually for alpha and beta θ=(X.T*X).I*X.T*y
 a,b=A[0,0],A[1,0]
