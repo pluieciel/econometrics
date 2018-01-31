@@ -12,5 +12,8 @@ x, y = zip(*my)
 X = sm.add_constant(x)
 results = sm.OLS(y,X).fit()
 print(results.summary())
-with plt.xkcd():    #XKCD-style sketch plots ;-)
-    plt.plot(x,y,'bo',x,results.fittedvalues,'r')
+#with plt.xkcd():    #XKCD-style sketch plots ;-)
+plt.plot(x,y,'bo',x,results.fittedvalues,'r')
+
+A=(np.mat(X).T*np.mat(X)).I*np.mat(X).T*np.mat(y).T   #do it manually for alpha and beta
+a,b=A[0,0],A[1,0]
