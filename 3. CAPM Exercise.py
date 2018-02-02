@@ -15,5 +15,5 @@ plt.plot(x,y,'.')
 regression = sm.OLS(y,X).fit()
 print(regression.summary())
 
-Z=(regression.params[1]-1)/regression.bse[1]
-scipy.stats.norm.cdf(Z)
+Z=(regression.params[1]-1)/regression.bse[1] #Z<-(summary(regression)$coefficients[2,1]-1)/summary(regression)$coefficients[2,2]
+scipy.stats.norm.cdf(Z) #pnorm(Z)
