@@ -13,6 +13,8 @@ X = sm.add_constant(x) #X is a matrix with first col of '1' & second col of x
 model1 = sm.OLS(y,X).fit()
 print(model1.summary())
 
+#alphe&beta: model1.params
+#std err: model1.bse
 ########################################
 
 np.mean(model1.resid) #mean(model1$residuals) 
