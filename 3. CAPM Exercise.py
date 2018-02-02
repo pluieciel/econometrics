@@ -6,7 +6,7 @@ from io import StringIO
 import urllib.request
 import scipy
 
-data = urllib.request.urlopen('https://raw.githubusercontent.com/pluieciel/econometrics/master/CAPM%20Exercise.csv').read().decode('ascii', 'ignore')
+data = urllib.request.urlopen('https://raw.githubusercontent.com/pluieciel/econometrics/master/data/CAPM%20Exercise.csv').read().decode('ascii', 'ignore')
 my = np.loadtxt(StringIO(data),delimiter=",",skiprows=1)
 
 y, x = zip(*my) #x:sp500, y:AMZN
