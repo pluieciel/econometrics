@@ -4,7 +4,7 @@ import numpy as np
 import statsmodels.api as sm
 from io import StringIO  
 import urllib.request
-import scipy, csv
+import scipy
 
 #####load datas:
 ##from web:
@@ -12,13 +12,9 @@ data = urllib.request.urlopen('https://raw.githubusercontent.com/pluieciel/econo
 my = np.loadtxt(StringIO(data),delimiter=",",skiprows=1)
 
 ##if from local path:
-#with open(r'C:\Users\JVKR\Dropbox\VRP\BD_VRP\HighFreqData\CAPM Exercise.csv','r') as csvf:
-#    my=list(csv.reader(csvf))[1:]
+#my = np.loadtxt(open(r'C:\Users\JVKR\Dropbox\VRP\BD_VRP\HighFreqData\CAPM Exercise.csv','r'),delimiter=",",skiprows=1)
 
 y, x = zip(*my) #x:sp500, y:AMZN
-
-##if from local path:
-#y,x=list(map(float,y)),list(map(float,x))
 
 X = sm.add_constant(x) #X is a matrix with first col of '1' & second col of x
 
