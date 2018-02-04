@@ -18,12 +18,24 @@ print(results.summary())
 #with plt.xkcd():    #XKCD-style sketch plots ;-)
 plt.plot(x,y,'bo',x,results.fittedvalues,'r')
 
-#####method 2:
-#normal equition: alpha and beta θ=(X.T*X).I*X.T*y
+##### Method 2:
+#normal equation: alpha and beta θ=(X.T*X).I*X.T*y
 A=(np.mat(X).T*np.mat(X)).I*np.mat(X).T*np.mat(y).T   
 a,b=A[0,0],A[1,0]
+print(a,b)
 
-#####method 3:
+##### Method 3:
 #beta=Cov/Var
 beta= np.cov(x,y)[1][0]/np.cov(x,y)[0][0]
 alpha=np.mean(y)-beta*np.mean(x)
+print(alpha,beta)
+
+##### Method 4:
+#gradient descent
+theta=np.mat(np.array([[0],[0]]))
+step=0.1
+m=len(y)
+for _ in range(500):
+    theta=theta-step/m*(np.mat(X).T*(np.mat(X)*theta-np.mat(y).T))
+print(theta[0,0],theta[1,0])
+
