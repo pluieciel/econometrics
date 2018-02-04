@@ -38,7 +38,7 @@ print(alpha,beta)
 theta=np.mat([[0],[0]])
 step=0.1
 m=len(y)
-for _ in range(500):
+for _ in range(250):
     theta=theta-step/m*(np.mat(X).T*(np.mat(X)*theta-np.mat(y).T))
 print(theta[0,0],theta[1,0])
 
