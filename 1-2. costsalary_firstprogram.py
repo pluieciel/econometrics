@@ -7,7 +7,7 @@ import urllib.request
 
 data = urllib.request.urlopen('https://raw.githubusercontent.com/pluieciel/econometrics/master/data/costsalary.csv').read().decode('ascii', 'ignore')
 my = np.loadtxt(StringIO(data),delimiter=";",skiprows=1)
-# my = np.loadtxt(open(r'D:\france life\2017 T2\metric\costsalary.csv',"rb"),delimiter=";",skiprows=1)
+
 x, y = zip(*my)
 X = sm.add_constant(x)
 results = sm.OLS(y,X).fit()
