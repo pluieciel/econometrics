@@ -35,7 +35,7 @@ print(alpha,beta)
 
 ##### Method 4:
 #gradient descent
-theta=np.mat(np.array([[0],[0]]))
+theta=np.mat([[0],[0]])
 step=0.1
 m=len(y)
 for _ in range(500):
