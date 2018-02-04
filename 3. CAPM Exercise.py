@@ -12,7 +12,7 @@ data = urllib.request.urlopen('https://raw.githubusercontent.com/pluieciel/econo
 my = np.loadtxt(StringIO(data),delimiter=",",skiprows=1)
 
 ##if from local path:
-#with open(r'C:\Users\ywluyao11\Downloads\CAPM Exercise.csv','r') as csvf:
+#with open(r'C:\Users\JVKR\Dropbox\VRP\BD_VRP\HighFreqData\CAPM Exercise.csv','r') as csvf:
 #    a=csv.reader(csvf)
 #    my=[row for row in a][1:]
 
