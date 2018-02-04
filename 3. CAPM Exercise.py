@@ -4,7 +4,7 @@ import numpy as np
 import statsmodels.api as sm
 from io import StringIO  
 import urllib.request
-import scipy
+import scipy.stats
 
 #####load datas:
 ##from web:
