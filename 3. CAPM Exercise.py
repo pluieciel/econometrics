@@ -13,7 +13,7 @@ my = np.loadtxt(StringIO(data),delimiter=",",skiprows=1)
 
 ##if from local path:
 #with open(r'C:\Users\JVKR\Dropbox\VRP\BD_VRP\HighFreqData\CAPM Exercise.csv','r') as csvf:
-#    my=[row for row in csv.reader(csvf)][1:]
+#    my=list(csv.reader(csvf))[1:]
 
 y, x = zip(*my) #x:sp500, y:AMZN
 
