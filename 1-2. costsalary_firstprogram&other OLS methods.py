@@ -5,18 +5,21 @@ import statsmodels.api as sm
 from io import StringIO  
 import urllib.request
 
+#load datas:
 data = urllib.request.urlopen('https://raw.githubusercontent.com/pluieciel/econometrics/master/data/costsalary.csv').read().decode('ascii', 'ignore')
 my = np.loadtxt(StringIO(data),delimiter=";",skiprows=1)
-
 ##if from local path:
 #my = np.loadtxt(open(r'C:\Users\Downloads\costsalary.csv','r'),delimiter=";",skiprows=1)
-
 x, y = zip(*my)
 X = sm.add_constant(x)
+
+##### Method 1:
+#statsmodels.api.OLS
 results = sm.OLS(y,X).fit()
 print(results.summary())
 #with plt.xkcd():    #XKCD-style sketch plots ;-)
 plt.plot(x,y,'bo',x,results.fittedvalues,'r')
+print(*results.params)
 
 ##### Method 2:
 #normal equation: alpha and beta θ=(X.T*X).I*X.T*y
