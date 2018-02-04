@@ -8,6 +8,9 @@ import urllib.request
 data = urllib.request.urlopen('https://raw.githubusercontent.com/pluieciel/econometrics/master/data/costsalary.csv').read().decode('ascii', 'ignore')
 my = np.loadtxt(StringIO(data),delimiter=";",skiprows=1)
 
+##if from local path:
+#my = np.loadtxt(open(r'C:\Users\Downloads\costsalary.csv','r'),delimiter=";",skiprows=1)
+
 x, y = zip(*my)
 X = sm.add_constant(x)
 results = sm.OLS(y,X).fit()
