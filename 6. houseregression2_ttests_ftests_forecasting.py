@@ -97,7 +97,3 @@ x3=np.column_stack([lnlotsizef,bedrmsf,bathrmsf,aircoff])
 X3=np.mat(sm.add_constant(x3))
 houseregf=sm.OLS(y,X3).fit()
 print(houseregf.summary())
-
-
-
-
