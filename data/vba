@@ -1,0 +1,1134 @@
+Public ows As Worksheet
+Public bmrange As Range
+Public doc As Document
+Public owb As Workbook
+Public Const ThisFileName = "Monthly Report BNPP Smallcap Euroland test"
+Public Const Path As String = "C:\Users\c30557\Desktop\Ongoing\Backup\"
+
+Sub sum()
+    Application.DisplayAlerts = wdAlertsNone
+    Call page
+    Call mkt_review
+    Call outlook
+    Call copytoexcel
+    Call delete_pic
+    Call pf_overview
+    Call Top_10
+    Call aum
+    Application.DisplayAlerts = wdAlertsNone
+End Sub
+
+
+Sub copytoexcel_test()
+
+    Dim oexcel As Object
+    
+    Dim doc As Document
+    Dim bmrange As Range
+    Dim ows As Worksheet
+    Dim a, b, c As Variant
+    Dim under As String 'for the underweight case
+    Dim rng As Range
+    Dim x As Integer
+    
+    Set doc = ActiveDocument
+    Set oexcel = CreateObject("Excel.Application")
+    oexcel.Visible = True
+
+    'open your excel file, modify direction if you want
+
+    
+    file = Path & "*BNP PARIBAS SMALLCAP EUROLAND" & "*SEC*"
+    Debug.Print Dir(file)
+    Debug.Print Path & Dir(file)
+        
+    'Check if the source file is ready
+    
+    If Dir(file) = "" Then
+        MsgBox "Make sure performance attribution is in the folder"
+        Exit Sub
+    End If
+
+    oexcel.Workbooks.Open Path & Dir(file)
+    Set owb = oexcel.ActiveWorkbook
+    Set ows = oexcel.ActiveWorkbook.Sheets("Contributors")
+
+With doc
+    
+    'fund return
+    a = ows.Range("I14").Value
+    a = Round(a * 100, 2)
+    b = Replace(CStr(a), ",", ".", 1)
+    Set bmrange = .Bookmarks("fund").Range
+    If b > 0 Then
+        bmrange.Text = b & "%"
+    Else
+        bmrange.Text = b & "%"
+    End If
+    .Bookmarks.Add Name:="fund", Range:=bmrange
+
+    '"outperforming"/"outperformance"
+    c = Round((ows.Range("I14").Value - ows.Range("k14").Value) * 10000, 0)
+    Set bmrange = .Bookmarks("perform").Range
+    If c < 0 Then
+        bmrange.Text = "underperforming"
+        .Bookmarks.Add Name:="perform", Range:=bmrange
+    Else
+        bmrange.Text = "outperforming"
+        .Bookmarks.Add Name:="perform", Range:=bmrange
+    End If
+    
+    
+    'how many bps we outperformed/underperformed
+    b = CStr(Abs(c))
+    Debug.Print b
+    Set bmrange = .Bookmarks("gap").Range
+    bmrange.Text = b
+    .Bookmarks.Add _
+        Name:="gap", Range:=bmrange
+
+    
+    'add increase here
+    Set bmrange = .Bookmarks("increase").Range
+    If ows.Range("K14").Value > 0 Then
+    bmrange.Text = "increased"
+    .Bookmarks.Add _
+        Name:="increase", Range:=bmrange
+    Else
+    bmrange.Text = "decreased"
+    .Bookmarks.Add _
+        Name:="increase", Range:=bmrange
+    'bmrange = Nothing
+    End If
+    'BCH return
+    a = ows.Range("K14").Value
+    a = Round(a * 100, 2)
+    b = Replace(CStr(a), ",", ".", 1)
+    Set bmrange = .Bookmarks("benchmark").Range
+    If b > 0 Then
+        bmrange.Text = b & "%"
+    Else
+        bmrange.Text = b & "%"
+    End If
+    .Bookmarks.Add _
+        Name:="benchmark", Range:=bmrange
+    'bmrange = Nothing
+'Here is the beginning of second part: best positive contributions come from...
+    'first sentence: allocation decision
+    
+    'create a new sheet
+    owb.Sheets.Add After:=owb.Sheets(owb.Sheets.Count)
+    'set owss as the new sheet
+    Set owss = owb.Sheets(owb.Sheets.Count)
+    
+    ows.Range("C36:Q41").Copy
+    owss.Range("A1").PasteSpecial _
+        xlPasteAllUsingSourceTheme, xlPasteSpecialOperationNone, skipblanks:=False, Transpose:=False
+    oexcel.Selection.UnMerge
+    oexcel.Selection.AutoFilter _
+        Field:=14, Criteria1:=">0.09"
+        doc.Activate
+        If owss.Range("J2") > 0 Then
+            'First One Overweight
+            Set bmrange = .Bookmarks("allocation_decision_overweight1").Range
+            bmrange.Text = "overweight"
+            .Bookmarks.Add _
+                Name:="allocation_decision_overweight1", Range:=bmrange
+            'overweight in which industry
+            Set bmrange = .Bookmarks("allocation_decision_overweight2").Range
+            bmrange.Text = owss.Range("A2").Value
+            .Bookmarks.Add _
+                Name:="allocation_decision_overweight2", Range:=bmrange
+            
+            'Second one overweight
+            If owss.Range("J3") > 0 Then
+            'overweight or underweight
+            'overweight in which industry
+            
+            'define "and" as underweight1
+            
+            Set bmrange = .Bookmarks("allocation_decision_underweight2").Range
+            bmrange.Text = owss.Range("A3").Value
+            .Bookmarks.Add _
+                Name:="allocation_decision_underweight2", Range:=bmrange
+            'Undisplay underweight
+            
+            
+            Else
+                'Second one underweight
+                Set bmrange = .Bookmarks("allocation_decision_underweight1").Range
+                bmrange.Text = "and underweight in"
+                .Bookmarks.Add _
+                    Name:="allocation_decision_underweight1", Range:=bmrange
+                'underweight in which industry
+                Set bmrange = .Bookmarks("allocation_decision_underweight2").Range
+                bmrange.Text = owss.Range("A3").Value
+                .Bookmarks.Add _
+                    Name:="allocation_decision_underweight2", Range:=bmrange
+            End If
+        Else
+        
+        'First Industry underweight
+        
+            Set bmrange = .Bookmarks("allocation_decision_overweight1").Range
+            bmrange.Text = "underweight"
+            .Bookmarks.Add _
+                Name:="allocation_decision_overweight1", Range:=bmrange
+            'overweight in which industry
+            Set bmrange = .Bookmarks("allocation_decision_overweight2").Range
+            bmrange.Text = owss.Range("A2").Value
+            .Bookmarks.Add _
+                Name:="allocation_decision_overweight2", Range:=bmrange
+            
+            'Second one overweight
+            If owss.Range("J3") > 0 Then
+            
+            Set bmrange = .Bookmarks("allocation_decision_underweight1").Range
+            bmrange.Text = "and overweight in"
+            .Bookmarks.Add _
+                Name:="allocation_decision_underweight1", Range:=bmrange 'this is contrary
+                
+            'overweight in which industry
+            
+            Set bmrange = .Bookmarks("allocation_decision_underweight2").Range
+            bmrange.Text = owss.Range("A3").Value
+            .Bookmarks.Add _
+                Name:="allocation_decision_underweight2", Range:=bmrange
+            
+             
+            
+            Else
+                'Second one underweight
+                Set bmrange = .Bookmarks("allocation_decision_underweight1").Range
+                bmrange.Text = "and"
+                .Bookmarks.Add _
+                    Name:="allocation_decision_underweight1", Range:=bmrange
+                'underweight in which industry
+                Set bmrange = .Bookmarks("allocation_decision_underweight2").Range
+                bmrange.Text = owss.Range("A3").Value
+                .Bookmarks.Add _
+                    Name:="allocation_decision_underweight2", Range:=bmrange
+            End If
+        
+        
+        End If
+        'First sentence over
+        
+        'Begin with stock selection
+        
+        'second sentence: selection decision
+        ows.Range("C45:Q50").Copy
+        owss.Range("A1").PasteSpecial _
+            xlPasteAllUsingSourceTheme, xlPasteSpecialOperationNone, skipblanks:=False, Transpose:=False
+        oexcel.Selection.UnMerge
+        'the criteria change into 0.15
+        oexcel.Selection.AutoFilter _
+            Field:=14, Criteria1:=">0.15"
+            
+        doc.Activate
+        Set bmrange = .Bookmarks("selection_decision").Range
+        bmrange.Text = ows.Range("C46").Value & " and " & ows.Range("C47").Value
+        .Bookmarks.Add _
+            Name:="selection_decision", Range:=bmrange
+       
+        
+        '1st to 5th contributor
+        For x = 1 To 5
+            'contributor
+            Set bmrange = .Bookmarks("contributor" & x).Range
+            bmrange.Text = ows.Range("C" & 22 + x).Value
+            .Bookmarks.Add _
+            Name:="contributor" & x, Range:=bmrange
+            '1st contributor_group
+            Set bmrange = .Bookmarks("contributor" & x & "_group").Range
+            bmrange.Text = ows.Range("H" & 22 + x).Value
+            .Bookmarks.Add _
+            Name:="contributor" & x & "_group", Range:=bmrange
+            '1st contributor_perf
+            Set bmrange = .Bookmarks("contributor" & x & "_perf").Range
+            If ows.Range("N" & 22 + x).Value > 0 Then
+                b = "up +" & Replace(CStr(Round(ows.Range("L" & 22 + x).Value, 2)), ",", ".", 1) & "%"
+                Else: b = "underweight down -" & Replace(CStr(Round(Abs(ows.Range("L" & 22 + x).Value), 2)), ",", ".", 1) & "%"
+            End If
+            bmrange.Text = b
+            .Bookmarks.Add _
+            Name:="contributor" & x & "_perf", Range:=bmrange
+        Next x
+        'End for the individual contributor
+        
+        'Beginning of the negative contributions
+        
+        For x = 1 To 2
+            
+            If ows.Range("AC" & 36 + x) < 0 Then
+                Set bmrange = .Bookmarks("negative_weight" & x).Range
+                bmrange.Text = "underweight in"
+                .Bookmarks.Add _
+                    Name:="negative_weight" & x, Range:=bmrange
+                Set bmrange = .Bookmarks("negative_item" & x).Range
+                bmrange.Text = ows.Range("T" & 36 + x)
+                .Bookmarks.Add _
+                    Name:="negative_item" & x, Range:=bmrange
+            Else
+                Set bmrange = .Bookmarks("negative_weight" & x).Range
+                bmrange.Text = "overweight in"
+                .Bookmarks.Add _
+                    Name:="negative_weight" & x, Range:=bmrange
+                Set bmrange = .Bookmarks("negative_item" & x).Range
+                bmrange.Text = ows.Range("T" & 36 + x)
+                .Bookmarks.Add _
+                    Name:="negative_item" & x, Range:=bmrange
+            End If
+        Next x
+                
+        'There is a bug here, if they are both postive or negative;;;;
+        
+        'Stock selection negative
+        
+        Set bmrange = .Bookmarks("selection_impact").Range
+        bmrange.Text = ows.Range("T46").Value & " and " & ows.Range("T47").Value
+        .Bookmarks.Add _
+        Name:="selection_impact", Range:=bmrange
+        
+        
+        'Negative contributor
+        
+        For x = 1 To 5
+            If ows.Range("AE" & 22 + x).Value < 0 Then
+                b = "underweight up +" & Replace(CStr(Round(ows.Range("AC" & 22 + x).Value, 2)), ",", ".", 1) & "%"
+                Else: b = "down -" & Replace(CStr(Round(Abs(ows.Range("AC" & 22 + x).Value), 2)), ",", ".", 1) & "%"
+            End If
+            Set bmrange = .Bookmarks("withholder" & x).Range
+            bmrange.Text = ows.Range("T" & 22 + x).Value & " (" & ows.Range("Y" & 22 + x).Value & ") " & b
+            .Bookmarks.Add _
+            Name:="withholder" & x, Range:=bmrange
+        Next x
+              
+                
+    End With
+      
+    oexcel.CutCopyMode = False
+    owb.Close savechanges:=False
+
+End Sub
+
+Sub copytoexcel()
+
+    Dim oexcel As Object
+    
+    Dim doc As Document
+    Dim bmrange As Range
+    Dim ows As Worksheet
+    Dim a, b, c As Variant
+    Dim under As String 'for the underweight case
+    Dim rng As Range
+    Dim x As Integer
+    
+    Set doc = ActiveDocument
+    Set oexcel = CreateObject("Excel.Application")
+    oexcel.Visible = True
+
+    'open your excel file, modify direction if you want
+
+    
+    file = Path & "*BNP PARIBAS SMALLCAP EUROLAND" & "*SEC*"
+    Debug.Print Dir(file)
+    Debug.Print Path & Dir(file)
+        
+    'Check if the source file is ready
+    
+    If Dir(file) = "" Then
+        MsgBox "Make sure performance attribution is in the folder"
+        Exit Sub
+    End If
+
+    oexcel.Workbooks.Open Path & Dir(file)
+    Set owb = oexcel.ActiveWorkbook
+    Set ows = oexcel.ActiveWorkbook.Sheets("Contributors")
+
+With doc
+    
+    'fund return
+    a = ows.Range("I14").Value
+    a = Round(a * 100, 2)
+    b = Replace(CStr(a), ",", ".", 1)
+    Set bmrange = .Bookmarks("fund").Range
+    If b > 0 Then
+        bmrange.Text = b & "%"
+    Else
+        bmrange.Text = b & "%"
+    End If
+    .Bookmarks.Add Name:="fund", Range:=bmrange
+
+    '"outperforming"/"outperformance"
+    c = Round((ows.Range("I14").Value - ows.Range("k14").Value) * 10000, 0)
+    Set bmrange = .Bookmarks("perform").Range
+    If c < 0 Then
+        bmrange.Text = "underperforming"
+        .Bookmarks.Add Name:="perform", Range:=bmrange
+    Else
+        bmrange.Text = "outperforming"
+        .Bookmarks.Add Name:="perform", Range:=bmrange
+    End If
+    
+    
+    'how many bps we outperformed/underperformed
+    b = CStr(Abs(c))
+    Debug.Print b
+    Set bmrange = .Bookmarks("gap").Range
+    bmrange.Text = b
+    .Bookmarks.Add _
+        Name:="gap", Range:=bmrange
+
+    
+    'add increase here
+    Set bmrange = .Bookmarks("increase").Range
+    If ows.Range("K14").Value > 0 Then
+    bmrange.Text = "increased"
+    .Bookmarks.Add _
+        Name:="increase", Range:=bmrange
+    Else
+    bmrange.Text = "decreased"
+    .Bookmarks.Add _
+        Name:="increase", Range:=bmrange
+    'bmrange = Nothing
+    End If
+    'BCH return
+    a = ows.Range("K14").Value
+    a = Round(a * 100, 2)
+    b = Replace(CStr(a), ",", ".", 1)
+    Set bmrange = .Bookmarks("benchmark").Range
+    If b > 0 Then
+        bmrange.Text = b & "%"
+    Else
+        bmrange.Text = b & "%"
+    End If
+    .Bookmarks.Add _
+        Name:="benchmark", Range:=bmrange
+    'bmrange = Nothing
+'Here is the beginning of second part: best positive contributions come from...
+    'first sentence: allocation decision
+    
+    'create a new sheet
+    owb.Sheets.Add After:=owb.Sheets(owb.Sheets.Count)
+    'set owss as the new sheet
+    Set owss = owb.Sheets(owb.Sheets.Count)
+    
+    ows.Range("C36:Q41").Copy
+    owss.Range("A1").PasteSpecial _
+        xlPasteAllUsingSourceTheme, xlPasteSpecialOperationNone, skipblanks:=False, Transpose:=False
+    oexcel.Selection.UnMerge
+    oexcel.Selection.AutoFilter _
+        Field:=14, Criteria1:=">0.09"
+        doc.Activate
+        If owss.Range("J2") > 0 Then
+            'First One Overweight
+            Set bmrange = .Bookmarks("allocation_decision_overweight1").Range
+            bmrange.Text = "overweight"
+            .Bookmarks.Add _
+                Name:="allocation_decision_overweight1", Range:=bmrange
+            'overweight in which industry
+            Set bmrange = .Bookmarks("allocation_decision_overweight2").Range
+            bmrange.Text = owss.Range("A2").Value
+            .Bookmarks.Add _
+                Name:="allocation_decision_overweight2", Range:=bmrange
+            
+            'Second one overweight
+            If owss.Range("J3") > 0 Then
+            'overweight or underweight
+            'overweight in which industry
+            
+            'define "and" as underweight1
+            
+            Set bmrange = .Bookmarks("allocation_decision_underweight2").Range
+            bmrange.Text = owss.Range("A3").Value
+            .Bookmarks.Add _
+                Name:="allocation_decision_underweight2", Range:=bmrange
+            'Undisplay underweight
+            
+            
+            Else
+                'Second one underweight
+                Set bmrange = .Bookmarks("allocation_decision_underweight1").Range
+                bmrange.Text = "and underweight in"
+                .Bookmarks.Add _
+                    Name:="allocation_decision_underweight1", Range:=bmrange
+                'underweight in which industry
+                Set bmrange = .Bookmarks("allocation_decision_underweight2").Range
+                bmrange.Text = owss.Range("A3").Value
+                .Bookmarks.Add _
+                    Name:="allocation_decision_underweight2", Range:=bmrange
+            End If
+        Else
+        
+        'First Industry underweight
+        
+            Set bmrange = .Bookmarks("allocation_decision_overweight1").Range
+            bmrange.Text = "underweight"
+            .Bookmarks.Add _
+                Name:="allocation_decision_overweight1", Range:=bmrange
+            'overweight in which industry
+            Set bmrange = .Bookmarks("allocation_decision_overweight2").Range
+            bmrange.Text = owss.Range("A2").Value
+            .Bookmarks.Add _
+                Name:="allocation_decision_overweight2", Range:=bmrange
+            
+            'Second one overweight
+            If owss.Range("J3") > 0 Then
+            
+            Set bmrange = .Bookmarks("allocation_decision_underweight1").Range
+            bmrange.Text = "and overweight in"
+            .Bookmarks.Add _
+                Name:="allocation_decision_underweight1", Range:=bmrange 'this is contrary
+                
+            'overweight in which industry
+            
+            Set bmrange = .Bookmarks("allocation_decision_underweight2").Range
+            bmrange.Text = owss.Range("A3").Value
+            .Bookmarks.Add _
+                Name:="allocation_decision_underweight2", Range:=bmrange
+            
+             
+            
+            Else
+                'Second one underweight
+                Set bmrange = .Bookmarks("allocation_decision_underweight1").Range
+                bmrange.Text = "and"
+                .Bookmarks.Add _
+                    Name:="allocation_decision_underweight1", Range:=bmrange
+                'underweight in which industry
+                Set bmrange = .Bookmarks("allocation_decision_underweight2").Range
+                bmrange.Text = owss.Range("A3").Value
+                .Bookmarks.Add _
+                    Name:="allocation_decision_underweight2", Range:=bmrange
+            End If
+        
+        
+        End If
+        'First sentence over
+        
+        'Begin with stock selection
+        
+        'second sentence: selection decision
+        ows.Range("C45:Q50").Copy
+        owss.Range("A1").PasteSpecial _
+            xlPasteAllUsingSourceTheme, xlPasteSpecialOperationNone, skipblanks:=False, Transpose:=False
+        oexcel.Selection.UnMerge
+        'the criteria change into 0.15
+        oexcel.Selection.AutoFilter _
+            Field:=14, Criteria1:=">0.15"
+            
+        doc.Activate
+        Set bmrange = .Bookmarks("selection_decision").Range
+        bmrange.Text = ows.Range("C46").Value & " and " & ows.Range("C47").Value
+        .Bookmarks.Add _
+            Name:="selection_decision", Range:=bmrange
+       
+        
+        '1st to 5th contributor
+                
+               For x = 1 To 5
+            If ows.Range("N" & 22 + x).Value < 0 Then
+                b = "underweight down -" & Replace(CStr(Round(ows.Range("L" & 22 + x).Value, 2)), ",", ".", 1) & "%"
+                Else: b = "up +" & Replace(CStr(Round(Abs(ows.Range("L" & 22 + x).Value), 2)), ",", ".", 1) & "%"
+            End If
+            Set bmrange = .Bookmarks("contributor" & x).Range
+            bmrange.Text = ows.Range("C" & 22 + x).Value & " (" & ows.Range("H" & 22 + x).Value & ") " & b
+            .Bookmarks.Add _
+            Name:="contributor" & x, Range:=bmrange
+        Next x
+        'End for the individual contributor
+        
+           
+        'Beginning of the negative contributions
+        
+        For x = 1 To 2
+            
+            If ows.Range("AC" & 36 + x) < 0 Then
+                Set bmrange = .Bookmarks("negative_weight" & x).Range
+                bmrange.Text = "underweight in"
+                .Bookmarks.Add _
+                    Name:="negative_weight" & x, Range:=bmrange
+                Set bmrange = .Bookmarks("negative_item" & x).Range
+                bmrange.Text = ows.Range("T" & 36 + x)
+                .Bookmarks.Add _
+                    Name:="negative_item" & x, Range:=bmrange
+            Else
+                Set bmrange = .Bookmarks("negative_weight" & x).Range
+                bmrange.Text = "overweight in"
+                .Bookmarks.Add _
+                    Name:="negative_weight" & x, Range:=bmrange
+                Set bmrange = .Bookmarks("negative_item" & x).Range
+                bmrange.Text = ows.Range("T" & 36 + x)
+                .Bookmarks.Add _
+                    Name:="negative_item" & x, Range:=bmrange
+            End If
+        Next x
+                
+        'There is a bug here, if they are both postive or negative;;;;
+        
+        'Stock selection negative
+        
+        Set bmrange = .Bookmarks("selection_impact").Range
+        bmrange.Text = ows.Range("T46").Value & " and " & ows.Range("T47").Value
+        .Bookmarks.Add _
+        Name:="selection_impact", Range:=bmrange
+        
+        
+        'Negative contributor
+        
+        For x = 1 To 5
+            If ows.Range("AE" & 22 + x).Value < 0 Then
+                b = "underweight up +" & Replace(CStr(Round(ows.Range("AC" & 22 + x).Value, 2)), ",", ".", 1) & "%"
+                Else: b = "down -" & Replace(CStr(Round(Abs(ows.Range("AC" & 22 + x).Value), 2)), ",", ".", 1) & "%"
+            End If
+            Set bmrange = .Bookmarks("withholder" & x).Range
+            bmrange.Text = ows.Range("T" & 22 + x).Value & " (" & ows.Range("Y" & 22 + x).Value & ") " & b
+            .Bookmarks.Add _
+            Name:="withholder" & x, Range:=bmrange
+        Next x
+              
+                
+    End With
+      
+    oexcel.CutCopyMode = False
+    owb.Close savechanges:=False
+
+End Sub
+
+Sub FindAndReplaceFirstStoryOfEachType()
+
+    Dim rngStory As Range
+    For Each rngStory In ActiveDocument.StoryRanges
+      
+        With rngStory.Find
+
+            .Text = "find text"
+            .Replacement.Text = "I'm found"
+            .Wrap = wdFindContinue
+            .Execute Replace:=wdReplaceAll
+            
+        End With
+        
+    Next rngStory
+ 
+End Sub
+
+
+
+Sub page()
+    'insert the header of the document and date, and it's finished
+    'insert first page date
+    'insert
+    Dim e As Integer
+    
+    Dim m, d As String
+    
+    e = Month(Date) - 1
+    
+    Select Case e
+        Case Is = 1
+        m = "Jan"
+        mm = "January"
+        Case Is = 2
+        m = "Feb"
+        mm = "February"
+        Case Is = 3
+        m = "Mar"
+        mm = "March"
+        Case Is = 4
+        m = "Apr"
+        mm = "April"
+        Case Is = 5
+        m = "May"
+        mm = "May"
+        Case Is = 6
+        m = "Jun"
+        mm = "June"
+        Case Is = 7
+        m = "Jul"
+        mm = "July"
+        Case Is = 8
+        m = "Aug"
+        mm = "August"
+        Case Is = 9
+        m = "Sep"
+        mm = "September"
+        Case Is = 10
+        m = "Oct"
+        mm = "October"
+        Case Is = 11
+        m = "Nov"
+        mm = "November"
+        Case Is = 12
+        m = "Dec"
+        mm = "December"
+    End Select
+    
+
+    With ActiveDocument
+    Set bmrange = .Bookmarks("month1").Range
+         bmrange.Text = mm
+         .Bookmarks.Add _
+             Name:="month1", Range:=bmrange
+    Set bmrange = .Bookmarks("month2").Range
+         bmrange.Text = mm
+         .Bookmarks.Add _
+             Name:="month2", Range:=bmrange
+    Set bmrange = .Bookmarks("month3").Range
+         bmrange.Text = mm
+         .Bookmarks.Add _
+             Name:="month3", Range:=bmrange
+    Set bmrange = .Bookmarks("month4").Range
+         bmrange.Text = mm
+         .Bookmarks.Add _
+             Name:="month4", Range:=bmrange
+    End With
+    
+    m = m & " " & Year(Date)
+    
+    
+    'Format(DateAdd("m", -1, Date), "MMM-yyyy")
+    
+    With ActiveDocument.Sections(2).Headers(wdHeaderFooterPrimary)
+            .LinkToPrevious = False
+            '.Range.Font.Size = 9
+            .Range.Fields.Add .Range, wdFieldPage, , False   ' insert page number as a field
+            
+            ' Insert text before and after page number field because you can't easily do this with fields
+            
+            .Range.InsertBefore "Monthly Report " & StrConv(m, vbProperCase) & " - "
+            '.Range.InsertAfter "cde"
+            
+            'Unbold all the words and Bold the page number
+            .Range.Font.Bold = False
+            .Range.Words(7).Font.Bold = True
+            
+    End With
+    
+    'Find last day of previous month
+    With ActiveDocument
+    d = Format(DateSerial(Year(Date), Month(Date), 0), "dd/mm/yy")
+    Set bmrange = .Bookmarks("date").Range
+        bmrange.Text = d
+        .Bookmarks.Add _
+            Name:="date", Range:=bmrange
+            
+    'Top 10 date
+    Set bmrange = .Bookmarks("date2").Range
+         bmrange.Text = d
+         .Bookmarks.Add _
+             Name:="date2", Range:=bmrange
+    
+    End With
+    
+    
+    
+
+
+End Sub
+
+
+Sub mkt_review()
+    
+    'Finished
+    'Replace the market review from the bullet points
+    
+    Dim p As Paragraph
+    Dim file As String
+    Dim m, y As Integer
+    Dim rng As Range
+    Dim st, en As Integer
+    
+    
+    
+    'Open the source file
+    
+    m = Month(Date) - 1
+    y = Year(Date)
+    file = Path & "*Bullet points*"
+    Debug.Print Dir(file)
+    
+    'Check if the source file is ready
+    
+    If Dir(file) = "" Then
+        MsgBox "Make sure bullet points are in the folder"
+        Exit Sub
+    End If
+    
+    
+    Documents.Open FileName:=Path & Dir(file), ReadOnly:=True
+    
+    'Copy the market review
+    
+    ActiveDocument.Paragraphs(2).Range.Select
+    Selection.MoveDown Unit:=wdParagraph, Count:=3, Extend:=wdExtend
+    Selection.Font.Size = 10
+    
+    'Change source format
+    
+    With ListGalleries(wdBulletGallery).ListTemplates(1).ListLevels(1)
+        .NumberFormat = ChrW(61572)
+        .TrailingCharacter = wdTrailingTab
+        .NumberStyle = wdListNumberStyleBullet
+        .NumberPosition = InchesToPoints(0.25)
+        .Alignment = wdListLevelAlignLeft
+        .TextPosition = InchesToPoints(0.5)
+        .TabPosition = wdUndefined
+        .ResetOnHigher = 0
+        .StartAt = 1
+        With .Font
+            .Bold = wdUndefined
+            .Italic = wdUndefined
+            .StrikeThrough = wdUndefined
+            .Subscript = wdUndefined
+            .Superscript = wdUndefined
+            .Shadow = wdUndefined
+            .Outline = wdUndefined
+            .Emboss = wdUndefined
+            .Engrave = wdUndefined
+            .AllCaps = wdUndefined
+            .Hidden = wdUndefined
+            .Underline = wdUndefined
+            .Color = 4128917
+            .Size = 10
+            .Animation = wdUndefined
+            .DoubleStrikeThrough = wdUndefined
+            .Name = "Wingdings 3"
+        End With
+        .LinkedStyle = ""
+    End With
+    
+    
+    
+    Selection.Copy
+    
+    ActiveDocument.Close savechanges:=False
+    
+    'Change it to the real name later
+    ThisDocument.Activate
+    
+    For Each p In ActiveDocument.Paragraphs
+          'Find Market Review
+          
+          If InStr(p.Range.Text, "MARKET REVIEW") Then
+              Debug.Print p.Range.Text
+              p.Range.Select
+              'Select next paragraph
+              Selection.Next(Unit:=wdParagraph, Count:=1).Select
+              st = Selection.Start
+              Selection.GoTo What:=wdGoToHeading, Which:=wdGoToNext
+              en = Selection.Start
+              'Selection.PasteAndFormat (wdPasteDefault)
+              Set rng = ActiveDocument.Range(st, en)
+              rng.Select
+              Selection.PasteAndFormat (wdPasteDefault)
+              
+          End If
+          
+      Next p
+    
+ 
+End Sub
+
+Sub pageNumber()
+    ActiveDocument.Sections(ActiveDocument.Sections.Count) _
+        .Headers(wdHeaderFooterPrimary).Range.Select
+    With Selection
+        .Paragraphs(1).Alignment = wdAlignParagraphCenter
+        .TypeText Text:="Page "
+        .Fields.Add Range:=Selection.Range, Type:=wdFieldEmpty, Text:= _
+            "PAGE ", PreserveFormatting:=True
+        .TypeText Text:=" of "
+        '.Fields.Add Range:=Selection.Range, Type:=wdFieldEmpty, Text:= _
+         '   "NUMPAGES ", PreserveFormatting:=True
+    End With
+End Sub
+
+
+Sub outlook()
+    
+    'Finished
+    'Replace the market review from the bullet points
+    
+    Dim p As Paragraph
+    Dim file As String
+    Dim m, y As Integer
+    Dim st, en As Integer
+    'Open the source file
+    
+    
+    m = Month(Date) - 1
+    y = Year(Date)
+    file = Path & "*Outlook for BNP Paribas Smallcap Euroland" & "*.docx"
+    Debug.Print Dir(file)
+      
+        
+    'Check if the source file is ready
+    
+    If Dir(file) = "" Then
+        MsgBox "Make sure outlook is in the folder"
+        Exit Sub
+    End If
+    
+    Documents.Open (Path & Dir(file))
+    
+    ActiveDocument.Paragraphs(2).Range.Select
+    Selection.MoveDown Unit:=wdParagraph, Count:=20, Extend:=wdExtend
+    Selection.Font.Size = 10
+    
+    'Cause in the orginal file, Thierry highlight small caps
+    
+    Selection.Font.ColorIndex = wdBlack
+    
+   
+    'Change Small Caps to Mid Caps, this is parvest equity small cap, so display it
+    ''With Selection.Find
+        ''.Text = "European Small Caps"
+        ''.Replacement.Text = "European Mid Caps"
+        ''.Wrap = wdFindContinue
+        ''.Execute Replace:=wdReplaceAll
+    ''End With
+
+'Change source format
+    
+    With ListGalleries(wdBulletGallery).ListTemplates(1).ListLevels(1)
+        .NumberFormat = ChrW(61572)
+        .TrailingCharacter = wdTrailingTab
+        .NumberStyle = wdListNumberStyleBullet
+        .NumberPosition = InchesToPoints(0.25)
+        .Alignment = wdListLevelAlignLeft
+        .TextPosition = InchesToPoints(0.5)
+        .TabPosition = wdUndefined
+        .ResetOnHigher = 0
+        .StartAt = 1
+        With .Font
+            .Bold = wdUndefined
+            .Italic = wdUndefined
+            .StrikeThrough = wdUndefined
+            .Subscript = wdUndefined
+            .Superscript = wdUndefined
+            .Shadow = wdUndefined
+            .Outline = wdUndefined
+            .Emboss = wdUndefined
+            .Engrave = wdUndefined
+            .AllCaps = wdUndefined
+            .Hidden = wdUndefined
+            .Underline = wdUndefined
+            .Color = 4128917
+            .Size = 10
+            .Animation = wdUndefined
+            .DoubleStrikeThrough = wdUndefined
+            .Name = "Wingdings 3"
+        End With
+        .LinkedStyle = ""
+    End With
+           
+    Selection.Copy
+    
+    ActiveDocument.Close savechanges:=False
+    
+    'Change it to the real name later
+    ThisDocument.Activate
+    
+   For Each p In ActiveDocument.Paragraphs
+          'Find Market Review
+          If InStr(p.Range.Text, "OUTLOOK & POSITIONING") Then
+              Debug.Print p.Range.Text
+              p.Range.Select
+              'Select next paragraph
+              Selection.Next(Unit:=wdParagraph, Count:=1).Select
+              st = Selection.Start
+              Selection.GoTo What:=wdGoToHeading, Which:=wdGoToNext
+              en = Selection.Start
+              'Selection.PasteAndFormat (wdPasteDefault)
+              Debug.Print p.Range.Start
+              Debug.Print Selection.Start
+              Set rng = ActiveDocument.Range(st, en)
+              rng.Select
+              Selection.PasteAndFormat (wdPasteDefault)
+              
+          End If
+      Next p
+        
+ 
+End Sub
+
+Sub pf_overview()
+    
+    Dim p As Paragraph
+    Dim file As String
+    Dim m, y As Integer
+    Dim st, en As Integer
+    Dim oexcel As Object
+    Dim doc As Document
+    Dim ows As Worksheet
+    Dim owb As Workbook
+    Dim rng As Range
+    Dim x As Integer
+    
+    
+  
+    file = Path & "*BD4" & "*"
+    Debug.Print Dir(file)
+    Debug.Print Path & Dir(file)
+        
+    'Check if the source file is ready
+    
+    If Dir(file) = "" Then
+        MsgBox "Make sure bd4 is in the folder"
+        Exit Sub
+    End If
+    
+    Set doc = ActiveDocument
+    Set oexcel = CreateObject("Excel.Application")
+    oexcel.Visible = True
+    oexcel.Workbooks.Open Path & Dir(file), ReadOnly:=True
+    
+    'BNP PARIBAS SMALLCAP EUROLAND 2518
+    Set owb = oexcel.ActiveWorkbook
+    Set ows = oexcel.ActiveWorkbook.Sheets("2518")
+    ows.Range("A5:I29").Copy
+    
+    Set doc = ActiveDocument
+    
+    Set bmrange = doc.Bookmarks("Overview").Range
+    bmrange.PasteSpecial Link:=False, DataType:=wdPasteEnhancedMetafile, _
+        Placement:=wdInLine, DisplayAsIcon:=False
+    doc.Bookmarks.Add Name:="Overview", Range:=bmrange
+    
+    ows.Range("A32:I57").Copy
+    
+    Set bmrange = doc.Bookmarks("ptf_C").Range
+    bmrange.PasteSpecial Link:=False, DataType:=wdPasteEnhancedMetafile, _
+        Placement:=wdInLine, DisplayAsIcon:=False
+        
+    ows.Range("A60:I85").Copy
+    
+     Set bmrange = doc.Bookmarks("ptf_I").Range
+    bmrange.PasteSpecial Link:=False, DataType:=wdPasteEnhancedMetafile, _
+        Placement:=wdInLine, DisplayAsIcon:=False
+    
+    oexcel.CutCopyMode = False
+    owb.Close savechanges:=False
+   
+    
+End Sub
+Sub Top_10()
+
+    Dim oexcel As Object
+    Dim doc As Document
+    Dim bmrange As Range
+    Dim ows As Worksheet
+    Dim a, c As Variant
+    Dim b As String
+    Dim under As String 'for the underweight case
+    Dim rng As Range
+    Dim x As Integer
+    
+    Set doc = ActiveDocument
+    Set oexcel = CreateObject("Excel.Application")
+    oexcel.Visible = True
+
+    'open your excel file, modify direction if you want
+
+    
+    file = Path & "*BNP PARIBAS SMALLCAP EUROLAND" & "*SEC*"
+    Debug.Print Dir(file)
+    Debug.Print Path & Dir(file)
+        
+    'Check if the source file is ready
+    
+    If Dir(file) = "" Then
+        MsgBox "Make sure outlook is in the folder"
+        Exit Sub
+    End If
+
+    oexcel.Workbooks.Open Path & Dir(file)
+    Set owb = oexcel.ActiveWorkbook
+    Set ows = oexcel.ActiveWorkbook.Sheets("Weight Analysis")
+    
+    ows.Range("B14").Copy ows.Range("B27")
+    ows.Range("K27:L27").Merge
+    ows.Range("K27") = "=SUM(R[-10]C:R[-1]C[1])"
+    ows.Range("B16:L27").Copy
+    
+    Set bmrange = doc.Bookmarks("Top_10").Range
+    bmrange.PasteSpecial Link:=False, DataType:=wdPasteEnhancedMetafile, _
+        Placement:=wdInLine, DisplayAsIcon:=False
+    
+    
+    oexcel.CutCopyMode = False
+    
+    owb.Close savechanges:=False
+    
+    
+
+End Sub
+
+
+Sub delete_pic()
+
+    Selection.Find.ClearFormatting
+    Selection.Find.Replacement.ClearFormatting
+    With Selection.Find
+        .Text = "^g"
+        .Replacement.Text = ""
+        .Forward = True
+        .Wrap = wdFindAsk
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchByte = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    Selection.Find.Execute Replace:=wdReplaceAll
+    
+
+End Sub
+
+
+Sub aum()
+    
+    Dim MyPath, file As String
+    Dim objFolder As Folder
+    Dim FSO As New FileSystemObject
+    Dim objFile As file
+    Dim m As Integer
+    Dim aum As String
+    
+    Set oexcel = CreateObject("Excel.Application")
+    Set doc = ActiveDocument
+    'Find the lattest the mouvement
+    
+    MyPath = "C:\Users\c30557\Desktop\Ongoing\Backup\"
+    
+    file = Dir(MyPath & "AUM SMID*.xlsx")
+    Debug.Print file
+    
+    Set objFile = FSO.GetFile(MyPath & file)
+    Debug.Print objFile.DateLastModified
+    
+    While Month(objFile.DateLastModified) <> Month(Date)
+        file = Dir
+        Set objFile = FSO.GetFile(MyPath & file)
+    Wend
+         
+    oexcel.Workbooks.Open MyPath & file, ReadOnly:=True
+    Set owb = oexcel.ActiveWorkbook
+    Set ows = oexcel.ActiveWorkbook.Sheets("AUM - fonds")
+    'Parvest Equity smallcap, can be changed
+    aum = ows.Range("E14").Value
+    
+    With doc
+        Set bmrange = .Bookmarks("aum").Range
+        bmrange.Text = Round(aum / 1000000, 0)
+        .Bookmarks.Add Name:="aum", Range:=bmrange
+    End With
+    owb.Close savechanges:=False
+    
+    
+
+End Sub
