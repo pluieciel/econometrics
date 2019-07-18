@@ -34,7 +34,7 @@ alpha=np.mean(y)-beta*np.mean(x)
 print(alpha,beta)
 
 ##### Method 4:
-#gradient descent
+#gradient descent  ###cannot figuare out why it does not work now...
 theta=np.mat([[0],[0]])
 step=0.1
 m=len(y)
