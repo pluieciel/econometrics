@@ -34,11 +34,23 @@ alpha=np.mean(y)-beta*np.mean(x)
 print(alpha,beta)
 
 ##### Method 4:
-#gradient descent  ###cannot figuare out why it does not work now...
-theta=np.mat([[0],[0]])
+#gradient descent 
+def abline(slope, intercept):
+    """Plot a line from slope and intercept"""
+    axes = plt.gca()
+    x_vals = np.array(axes.get_xlim())
+    y_vals = intercept + slope * x_vals
+    plt.plot(x_vals, y_vals, '--')
+    
+theta=np.mat([[0],[1]])
 step=0.1
 m=len(y)
-for _ in range(250):
-    theta=theta-step/m*(np.mat(X).T*(np.mat(X)*theta-np.mat(y).T))
+xx=np.array(x).reshape(-1,1)/10000;yy=np.array(y).reshape(-1,1)/10000
+XX=np.concatenate((np.ones(m).reshape(-1,1),xx),axis=1)
+for _ in range(5000):
+  theta=theta-step/m*(np.mat(XX).T*(np.mat(XX)*theta-np.mat(yy)))
+plt.plot(xx,yy,'bo')  
+abline(theta[1,0],theta[0,0])
+plt.show()
 print(theta[0,0],theta[1,0])
 
