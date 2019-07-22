@@ -54,3 +54,50 @@ abline(theta[1,0],theta[0,0])
 plt.show()
 print(theta[0,0],theta[1,0])
 
+#with PyTorch:
+import torch
+import torch.nn as nn
+
+# Hyper-parameters
+input_size = 1
+output_size = 1
+num_epochs = 6000
+learning_rate = 0.01
+
+# Toy dataset
+x_train = np.array(xx, dtype=np.float32)
+y_train = np.array(yy, dtype=np.float32)
+
+# Linear regression model
+model = nn.Linear(input_size, output_size)
+
+# Loss and optimizer
+criterion = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)  
+
+# Train the model
+for epoch in range(num_epochs):
+    # Convert numpy arrays to torch tensors
+    inputs = torch.from_numpy(x_train)
+    targets = torch.from_numpy(y_train)
+
+    # Forward pass
+    outputs = model(inputs)
+    loss = criterion(outputs, targets)
+    
+    # Backward and optimize
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    
+    if (epoch+1) % 1000 == 0:
+        print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, loss.item()))
+
+# Plot the graph
+predicted = model(torch.from_numpy(x_train)).detach().numpy()
+plt.plot(x_train, y_train, 'bo', label='Original data')
+plt.plot(x_train, predicted, label='Fitted line')
+plt.legend()
+plt.show()
+for i in model.parameters():print(i)
+
