@@ -1,4 +1,4 @@
 # econometrics
 2018 T2
 Welcome !
-Feel free to discuess in Issues.
+Add Notebooks that could be used in colab.
